@@ -1,0 +1,130 @@
+services:
+  # Laravel PHP-FPM service (primero para que inicie antes)
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: myBudget_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - myBudget_network
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=myBudget
+      - DB_USERNAME=myBudget
+      - DB_PASSWORD=mzEW3M04z5yl
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - XDEBUG_MODE=debug,develop
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 40s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Nginx service
+  nginx:
+    image: nginx:stable-alpine
+    container_name: myBudget_nginx
+    ports:
+      - "8066:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - myBudget_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Horizon
+  # horizon:
+  #   build:
+  #     context: ./docker/php
+  #     dockerfile: Dockerfile
+  #   container_name: myBudget_horizon
+  #   working_dir: /var/www/html
+  #   volumes:
+  #     - .:/var/www/html
+  #   command: php artisan horizon
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     app:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   networks:
+  #     - myBudget_network
+
+  # MySQL service
+  mysql:
+    image: mysql:8.4
+    container_name: myBudget_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "Wq089;Zfu3H["
+      MYSQL_DATABASE: myBudget
+      MYSQL_USER: myBudget
+      MYSQL_PASSWORD: "mzEW3M04z5yl"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "33062:3306"
+    networks:
+      - myBudget_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pWq089;Zfu3H["]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  # Redis service
+  redis:
+    image: redis:alpine
+    container_name: myBudget_redis
+    restart: unless-stopped
+    ports:
+      - "6314:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - myBudget_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+# Volumes
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# Networks
+networks:
+  myBudget_network:
+    name: myBudget_network
+    driver: bridge

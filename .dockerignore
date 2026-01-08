@@ -1,0 +1,5 @@
+docker/mysql/data
+docker/redis/data
+node_modules
+vendor
+.git
