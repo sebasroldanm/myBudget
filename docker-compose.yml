@@ -31,6 +31,7 @@ services:
       timeout: 3s
       retries: 5
       start_period: 40s
+    user: "1000:1000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -55,24 +56,6 @@ services:
       timeout: 3s
       retries: 3
 
-  # Horizon
-  # horizon:
-  #   build:
-  #     context: ./docker/php
-  #     dockerfile: Dockerfile
-  #   container_name: myBudget_horizon
-  #   working_dir: /var/www/html
-  #   volumes:
-  #     - .:/var/www/html
-  #   command: php artisan horizon
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #     app:
-  #       condition: service_healthy
-  #   restart: unless-stopped
-  #   networks:
-  #     - myBudget_network
 
   # MySQL service
   mysql:
