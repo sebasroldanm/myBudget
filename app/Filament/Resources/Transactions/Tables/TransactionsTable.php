@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\Transactions\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
-use Filament\Support\RawJs;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class TransactionsTable
@@ -18,6 +20,7 @@ class TransactionsTable
             ->columns([
                 TextColumn::make('transaction_date')
                     ->label('Fecha')
+                    ->sortable()
                     ->date(),
 
                 TextColumn::make('account.name')
@@ -32,6 +35,7 @@ class TransactionsTable
 
                 TextColumn::make('type')
                     ->badge()
+                    ->sortable()
                     ->colors([
                         'success' => 'income',
                         'danger' => 'expense',
@@ -39,15 +43,33 @@ class TransactionsTable
             ])
             ->defaultSort('transaction_date', 'desc')
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make()
+                    ->before(function ($record) {
+                        $account = $record->account;
+                        if ($record->type === 'income') {
+                            $account->decrement('current_balance', $record->amount);
+                        } else {
+                            $account->increment('current_balance', $record->amount);
+                        }
+                    }),
+                RestoreAction::make()
+                    ->before(function ($record) {
+                        $account = $record->account;
+                        if ($record->type === 'income') {
+                            $account->increment('current_balance', $record->amount);
+                        } else {
+                            $account->decrement('current_balance', $record->amount);
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    // DeleteBulkAction::make(),
                 ]),
             ]);
     }

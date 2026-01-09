@@ -22,14 +22,26 @@ class AccountForm
 
                 Select::make('type')
                     ->label('Tipo de cuenta')
-                    ->required()
                     ->options([
                         'cash' => 'Efectivo',
                         'bank' => 'Banco',
                         'wallet' => 'Billetera',
                         'credit' => 'Crédito',
                         'investment' => 'Inversión',
-                    ]),
+                    ])
+                    ->helperText(function ($record) {
+                        if ($record && $record->transactions()->exists()) {
+                            return 'No modificable, existen movimientos.';
+                        }
+                        return null;
+                    })
+                    ->disabled(function ($record) {
+                        if (! $record) {
+                            return false;
+                        }
+                        return $record->transactions()->count() > 0;
+                    })
+                    ->required(),
 
                 Select::make('currency')
                     ->label('Moneda')
@@ -39,6 +51,18 @@ class AccountForm
                         'EUR' => 'EUR',
                     ])
                     ->default(fn () => Auth::user()->currency_default)
+                    ->helperText(function ($record) {
+                        if ($record && $record->transactions()->exists()) {
+                            return 'No modificable, existen movimientos.';
+                        }
+                        return null;
+                    })
+                    ->disabled(function ($record) {
+                        if (! $record) {
+                            return false;
+                        }
+                        return $record->transactions()->count() > 0;
+                    })
                     ->required(),
 
                 TextInput::make('initial_balance')
@@ -49,17 +73,21 @@ class AccountForm
                     ->numeric()
                     ->default(0)
                     ->trim()
-                    ->helperText('Solo se usa al crear la cuenta')
+                    ->helperText(function ($record) {
+                        if ($record && $record->transactions()->exists()) {
+                            return 'No modificable, existen movimientos.';
+                        }
+                        return null;
+                    })
                     ->extraInputAttributes([
                         'onfocus' => "if(this.value == '0') this.value = ''",
                         'onblur' => "if(this.value == '') this.value = '0'",
                         ])
-                    // TODO: Implementar si no existen movimientos | $record->transactions()->count() === 0
                     ->disabled(function ($record) {
                         if (! $record) {
                             return false;
                         }
-                        return $record->initial_balance !== $record->current_balance;
+                        return $record->transactions()->count() > 0;
                     })
                     ->required(),
 

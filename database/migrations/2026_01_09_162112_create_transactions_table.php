@@ -30,11 +30,17 @@ return new class extends Migration
 
             $table->decimal('amount', 15, 2);
 
+            $table->boolean('is_locked')->default(false);
+
+            $table->boolean('is_recurring')->default(false);
+
             $table->date('transaction_date');
 
             $table->string('description')->nullable();
 
             $table->timestamps();
+
+            $table->softDeletes();
 
             $table->index(['user_id', 'transaction_date']);
         });
