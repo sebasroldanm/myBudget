@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Transactions\Tables;
 
+use App\Services\TransactionService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
@@ -26,8 +26,21 @@ class TransactionsTable
                 TextColumn::make('account.name')
                     ->label('Cuenta'),
 
-                TextColumn::make('category.name')
-                    ->label('Categoría'),
+                TextColumn::make('description_type')
+                    ->label('Categoría / Transferencia')
+                    ->state(function ($record) {
+                        if ($record->transfer_id) {
+                            $from = $record->transfer->fromAccount->name ?? '?';
+                            $to = $record->transfer->toAccount->name ?? '?';
+                            return "🔄 Transferencia: {$from} ➔ {$to}";
+                        }
+                        if ($record->category) {
+                            return "📁 " . $record->category->name;
+                        }
+                        return $record->description ?? 'Sin concepto';
+                    })
+                    ->searchable(['description'])
+                    ->sortable(),
 
                 TextColumn::make('amount')
                     ->label('Monto')
@@ -47,29 +60,24 @@ class TransactionsTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->hidden(fn ($record) => $record->is_locked),
                 DeleteAction::make()
+                    ->hidden(fn ($record) => $record->is_locked)
                     ->before(function ($record) {
-                        $account = $record->account;
-                        if ($record->type === 'income') {
-                            $account->decrement('current_balance', $record->amount);
-                        } else {
-                            $account->increment('current_balance', $record->amount);
-                        }
+                        app(TransactionService::class)->deleteTransaction($record);
                     }),
                 RestoreAction::make()
                     ->before(function ($record) {
-                        $account = $record->account;
-                        if ($record->type === 'income') {
-                            $account->increment('current_balance', $record->amount);
-                        } else {
-                            $account->decrement('current_balance', $record->amount);
-                        }
+                        app(TransactionService::class)->restoreTransaction($record);
                     }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    // DeleteBulkAction::make(),
+                    // DeleteBulkAction::make()
+                    //     ->action(function (Collection $records) {
+                    //         $records->each(fn ($record) => app(TransactionService::class)->deleteTransaction($record));
+                    //     }),
                 ]),
             ]);
     }

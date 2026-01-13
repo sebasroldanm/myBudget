@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Transactions\Pages;
 use App\Filament\Resources\Transactions\TransactionResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
+use App\Services\TransactionService;
 
 class CreateTransaction extends CreateRecord
 {
@@ -18,13 +19,6 @@ class CreateTransaction extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $transaction = $this->record;
-        $account = $transaction->account;
-
-        if ($transaction->type === 'income') {
-            $account->increment('current_balance', $transaction->amount);
-        } else {
-            $account->decrement('current_balance', $transaction->amount);
-        }
+        app(TransactionService::class)->handleAfterCreate($this->record);
     }
 }

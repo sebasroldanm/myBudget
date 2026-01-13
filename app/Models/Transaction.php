@@ -10,12 +10,18 @@ class Transaction extends Model
 {
     use SoftDeletes;
 
+    const TYPE_INCOME = 'income';
+    const TYPE_EXPENSE = 'expense';
+
     protected $fillable = [
         'user_id',
         'account_id',
         'category_id',
+        'transfer_id',
         'type',
         'amount',
+        'is_locked',
+        'is_recurring',
         'transaction_date',
         'description',
     ];
@@ -40,5 +46,10 @@ class Transaction extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function transfer(): BelongsTo
+    {
+        return $this->belongsTo(Transfer::class);
     }
 }

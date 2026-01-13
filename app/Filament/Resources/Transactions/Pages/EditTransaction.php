@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\Transactions\Pages;
 
 use App\Filament\Resources\Transactions\TransactionResource;
+use App\Services\TransactionService;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Model;
 
 class EditTransaction extends EditRecord
 {
@@ -20,39 +21,9 @@ class EditTransaction extends EditRecord
         ];
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $old = $this->record->replicate();
-
-        // Revertir movimiento anterior
-        DB::transaction(function () use ($old, $data) {
-            $this->applyReverse($old);
-            $this->record->update($data);
-            $this->apply($this->record);
-        });
-
-        return $this->record->getAttributes();
+        return app(TransactionService::class)->updateTransaction($record, $data);
     }
 
-    protected function applyReverse($transaction): void
-    {
-        $account = $transaction->account;
-
-        if ($transaction->type === 'income') {
-            $account->decrement('current_balance', $transaction->amount);
-        } else {
-            $account->increment('current_balance', $transaction->amount);
-        }
-    }
-
-    protected function apply($transaction): void
-    {
-        $account = $transaction->account;
-
-        if ($transaction->type === 'income') {
-            $account->increment('current_balance', $transaction->amount);
-        } else {
-            $account->decrement('current_balance', $transaction->amount);
-        }
-    }
 }
