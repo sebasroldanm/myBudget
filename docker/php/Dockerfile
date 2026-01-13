@@ -4,6 +4,7 @@ FROM php:8.4-fpm-alpine
 # System dependencies + Node.js
 # --------------------------------------------------
 RUN apk add --no-cache \
+    icu-data-full \
     bash \
     curl \
     zip \

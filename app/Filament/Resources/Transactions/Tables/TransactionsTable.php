@@ -11,9 +11,12 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use App\Traits\NumberFormatterTrait;
 
 class TransactionsTable
 {
+    use NumberFormatterTrait;
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -44,11 +47,21 @@ class TransactionsTable
 
                 TextColumn::make('amount')
                     ->label('Monto')
-                    ->money(fn ($record) => $record->account->currency),
+                    ->formatStateUsing(function ($record, $state) {
+                        return (new self())->formatCurrency(
+                            (float) $state, 
+                            $record->account->currency
+                        );
+                    }),
 
                 TextColumn::make('type')
                     ->badge()
                     ->sortable()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'income' => 'Ingreso',
+                        'expense' => 'Gasto',
+                        default => $state,
+                    })
                     ->colors([
                         'success' => 'income',
                         'danger' => 'expense',

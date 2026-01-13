@@ -7,12 +7,15 @@ use App\Models\ExchangeRate;
 use App\Models\Transaction;
 use App\Models\Transfer;
 use App\Services\TransactionService;
+use App\Traits\NumberFormatterTrait;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TransferService
 {
+    use NumberFormatterTrait;
     /**
      * Create a new class instance.
      */
@@ -72,6 +75,15 @@ class TransferService
             $rate = $this->getLatestRate($fromAccount->currency, $toAccount->currency);
             $data['exchange_rate'] = $rate;
             $data['amount_converted'] = bcmul($data['amount'], (string)$rate, 2);
+        }
+
+        if ($fromAccount->current_balance < $data['amount']) {
+            $pay = $this->formatCurrency($data['amount'], $fromAccount->currency);
+            $balance = $this->formatCurrency($fromAccount->current_balance, $fromAccount->currency);
+
+            throw ValidationException::withMessages([
+                'amount' => "Saldo insuficiente. La cuenta {$fromAccount->name} tiene {$balance} y estás intentando transferir {$pay}.",
+            ]);
         }
 
         return $data;
