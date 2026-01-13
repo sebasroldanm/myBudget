@@ -55,6 +55,7 @@ class TransactionsTable
                     }),
 
                 TextColumn::make('type')
+                    ->label('Tipo')
                     ->badge()
                     ->sortable()
                     ->formatStateUsing(fn (string $state): string => match ($state) {

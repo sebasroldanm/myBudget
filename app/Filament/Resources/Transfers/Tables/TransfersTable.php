@@ -53,6 +53,7 @@ class TransfersTable
                     }),
 
                 TextColumn::make('transfer_date')
+                    ->label('Fecha')
                     ->date(),
             ])
             ->filters([

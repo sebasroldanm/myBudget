@@ -23,9 +23,11 @@ class AccountResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingLibrary;
 
-    protected static ?string $recordTitleAttribute = 'Cuentas';
-
     protected static string | UnitEnum | null $navigationGroup = 'Finanzas';
+
+    protected static ?string $navigationLabel = 'Cuentas';
+
+    protected static ?string $pluralModelLabel = 'Cuentas';
 
     public static function form(Schema $schema): Schema
     {
