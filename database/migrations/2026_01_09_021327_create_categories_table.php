@@ -17,6 +17,11 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
+            $table->foreignId('parent_id')
+                ->nullable()
+                ->constrained('categories')
+                ->nullOnDelete();
+
             $table->string('name');
             $table->enum('type', ['expense', 'income']);
 
@@ -27,7 +32,9 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['user_id', 'name', 'type']);
+            $table->softDeletes();
+
+            $table->unique(['user_id', 'parent_id', 'name', 'type']);
         });
     }
 
