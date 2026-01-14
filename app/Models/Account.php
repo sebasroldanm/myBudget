@@ -13,7 +13,6 @@ class Account extends Model
     use NumberFormatterTrait;
 
     protected $fillable = [
-        'user_id',
         'name',
         'type',
         'currency',

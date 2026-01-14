@@ -12,7 +12,6 @@ class Product extends Model
     use SoftDeletes, NumberFormatterTrait;
 
     protected $fillable = [
-        'user_id',
         'category_id',
         'vendor',
         'name',
