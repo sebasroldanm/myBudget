@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\NumberFormatterTrait;
+use Illuminate\Support\Facades\Auth;
 
 class Account extends Model
 {
@@ -26,6 +27,21 @@ class Account extends Model
         'current_balance' => 'decimal:2',
         'is_active' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user_filter', function ($query) {
+            if (Auth::check()) {
+                $query->where('user_id', Auth::id());
+            }
+        });
+
+        static::creating(function ($account) {
+            if (Auth::check()) {
+                $account->user_id = Auth::id();
+            }
+        });
+    }
     
     /*
     |--------------------------------------------------------------------------

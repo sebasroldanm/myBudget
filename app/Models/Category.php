@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
 
 class Category extends Model
 {
@@ -24,6 +25,21 @@ class Category extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user_filter', function ($query) {
+            if (Auth::check()) {
+                $query->where('user_id', Auth::id());
+            }
+        });
+
+        static::creating(function ($category) {
+            if (Auth::check()) {
+                $category->user_id = Auth::id();
+            }
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -64,7 +80,6 @@ class Category extends Model
     */
     public function getFullNameAttribute(): string
     {
-        // Si tiene padre, concatenamos el nombre del padre con el actual
         if ($this->parent) {
             return "{$this->parent->full_name} > {$this->name}";
         }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\NumberFormatterTrait;
+use Illuminate\Support\Facades\Auth;
 
 class Product extends Model
 {
@@ -38,6 +39,21 @@ class Product extends Model
         'price' => 'decimal:2',
         'expected_price' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('user_filter', function ($query) {
+            if (Auth::check()) {
+                $query->where('user_id', Auth::id());
+            }
+        });
+
+        static::creating(function ($product) {
+            if (Auth::check()) {
+                $product->user_id = Auth::id();
+            }
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -97,6 +113,11 @@ class Product extends Model
     | Methods
     |--------------------------------------------------------------------------
     */
+
+    public function getFormattedPriceAttribute()
+    {
+        return $this->formatCurrency($this->price, $this->currency);
+    }
 
     public function getFormattedExpectedPriceAttribute()
     {
