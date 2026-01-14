@@ -27,6 +27,16 @@ class AccountResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Cuentas';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::active()->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Cuentas activas';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return AccountForm::configure($schema);
