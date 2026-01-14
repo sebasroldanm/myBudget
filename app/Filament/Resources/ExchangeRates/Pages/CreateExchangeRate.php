@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateExchangeRate extends CreateRecord
 {
     protected static string $resource = ExchangeRateResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

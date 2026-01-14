@@ -28,7 +28,7 @@ class ExchangeRatesTable
                     ->sortable(),
 
                 TextColumn::make('retrieved_at')
-                    ->label('Fecha')
+                    ->label('Actualizado')
                     ->dateTime()
                     ->sortable(),
             ])

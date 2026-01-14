@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\NumberFormatterTrait;
 
 class Account extends Model
 {
+    use NumberFormatterTrait;
+
     protected $fillable = [
         'user_id',
         'name',
@@ -23,6 +26,12 @@ class Account extends Model
         'current_balance' => 'decimal:2',
         'is_active' => 'boolean',
     ];
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
 
     public function user(): BelongsTo
     {
@@ -32,5 +41,21 @@ class Account extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class)->withTrashed();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Methods
+    |--------------------------------------------------------------------------
+    */
+
+    public function getBalanceAttribute()
+    {
+        return $this->current_balance;
+    }
+
+    public function getFormattedBalanceAttribute()
+    {
+        return $this->formatCurrency($this->current_balance, $this->currency);
     }
 }
