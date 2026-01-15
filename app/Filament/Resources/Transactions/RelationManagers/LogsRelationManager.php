@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Transactions\RelationManagers;
 
+use App\Traits\NumberFormatterTrait;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
@@ -17,7 +18,7 @@ use Filament\Tables\Table;
 
 class LogsRelationManager extends RelationManager
 {
-    use \App\Traits\NumberFormatterTrait;
+    use NumberFormatterTrait;
 
     protected static string $relationship = 'logs';
 
@@ -50,17 +51,15 @@ class LogsRelationManager extends RelationManager
                                     'created' => 'success',
                                     'updated' => 'warning',
                                     'deleted' => 'danger',
-                                    'locked'  => 'info',
-                                    'unlocked' => 'gray',
+                                    'restored'  => 'info',
                                     default   => 'gray',
                                 })
                                 ->formatStateUsing(fn($state): string => match ($state) {
                                     'created' => 'Creado',
                                     'updated' => 'Actualizado',
                                     'deleted' => 'Eliminado',
-                                    'locked'  => 'Bloqueado',
-                                    'unlocked' => 'Desbloqueado',
-                                    default   => 'Desconocido',
+                                    'restored'  => 'Restaurado',
+                                    default   => $state,
                                 }),
                             TextEntry::make('event_at')
                                 ->label('Fecha y Hora')
@@ -131,8 +130,18 @@ class LogsRelationManager extends RelationManager
                     ->schema([
                         TextEntry::make('account_name')
                             ->label('Cuenta')
-                            ->weight(FontWeight::Bold)
-                            ->state(fn($record) => "Tipo: {$record->account_type}"),
+                            ->weight(FontWeight::Bold),
+
+                        TextEntry::make('account_type')
+                            ->label('Tipo')
+                            ->formatStateUsing(fn($state) => match ($state) {
+                                'cash' => 'Efectivo',
+                                'bank' => 'Banco',
+                                'wallet' => 'Billetera',
+                                'credit' => 'Crédito',
+                                'investment' => 'Inversión',
+                                default => $state,
+                            }),
 
                         // Balances en Moneda Local
                         Section::make('Moneda Local (' . ($record->account_currency ?? 'COP') . ')')
@@ -186,7 +195,21 @@ class LogsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('event')
                     ->badge()
-                    ->label('Evento'),
+                    ->label('Evento')
+                    ->formatStateUsing(fn($state): string => match ($state) {
+                        'created' => 'Creado',
+                        'updated' => 'Actualizado',
+                        'deleted' => 'Eliminado',
+                        'restored'  => 'Restaurado',
+                        default   => $state,
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                        'restored' => 'info',
+                        default   => 'gray',
+                    }),
                 TextColumn::make('event_at')
                     ->label('Fecha')
                     ->dateTime()

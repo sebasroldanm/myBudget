@@ -28,7 +28,7 @@ class TransactionInfolist
                                 ->label('Monto')
                                 ->weight(FontWeight::Bold)
                                 ->size(TextSize::Large)
-                                ->state(fn($record) => self::formatCurrency((float)$record->amount, $record->account->currency ?? 'COP')),
+                                ->state(fn($record) => self::formatCurrency((float)$record->amount, $record->account->currency)),
 
                             TextEntry::make('type')
                                 ->label('Tipo')
@@ -63,6 +63,7 @@ class TransactionInfolist
 
                         TextEntry::make('description')
                             ->label('Descripción')
+                            ->state(fn($record) => $record->description ?? 'Sin descripción')
                             ->columnSpanFull(),
                     ]),
             ]);
