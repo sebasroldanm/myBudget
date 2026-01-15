@@ -27,6 +27,12 @@ class Transfer extends Model
         'transfer_date' => 'date',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -40,5 +46,21 @@ class Transfer extends Model
     public function toAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'to_account_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scopes
+    |--------------------------------------------------------------------------
+    */
+
+    public function scopeCurrentMonth($query)
+    {
+        return $query->whereBetween('transfer_date', [now()->startOfMonth(), now()->endOfMonth()]);
+    }
+
+    public function scopeCurrentYear($query)
+    {
+        return $query->whereBetween('transfer_date', [now()->startOfYear(), now()->endOfYear()]);
     }
 }

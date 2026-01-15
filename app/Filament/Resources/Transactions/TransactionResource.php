@@ -32,6 +32,16 @@ class TransactionResource extends Resource
     
     protected static ?string $modelLabel = 'Transacción';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::currentMonth()->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Transacciones del mes';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TransactionForm::configure($schema);

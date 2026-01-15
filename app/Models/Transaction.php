@@ -108,14 +108,24 @@ class Transaction extends Model
         return $query->where('type', self::TYPE_EXPENSE);
     }
 
-    public function scopeActive($query)
+    public function scopeLocked($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_locked', true);
     }
 
-    public function scopeInactive($query)
+    public function scopeUnlocked($query)
     {
-        return $query->where('is_active', false);
+        return $query->where('is_locked', false);
+    }
+
+    public function scopeCurrentMonth($query)
+    {
+        return $query->whereBetween('transaction_date', [now()->startOfMonth(), now()->endOfMonth()]);
+    }
+
+    public function scopeCurrentYear($query)
+    {
+        return $query->whereBetween('transaction_date', [now()->startOfYear(), now()->endOfYear()]);
     }
 
     /*

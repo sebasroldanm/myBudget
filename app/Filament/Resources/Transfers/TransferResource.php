@@ -29,6 +29,16 @@ class TransferResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Transferencias';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::currentMonth()->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Transferencias del mes';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TransferForm::configure($schema);
