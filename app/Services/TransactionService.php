@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Transaction;
+use App\Models\Transfer;
 use Illuminate\Support\Facades\DB;
 
 class TransactionService
@@ -14,7 +15,7 @@ class TransactionService
         protected TransactionLogService $logService
     ) {}
 
-    public function handleAfterCreate(Transaction $transaction): void
+    public function handleAfterCreate(Transaction $transaction, $transfer_id = null): void
     {
         DB::transaction(function () use ($transaction) {
             $account = $transaction->account;
@@ -25,14 +26,13 @@ class TransactionService
                 $account->decrement('current_balance', $transaction->amount);
             }
         });
-        $this->logService->log($transaction, 'created');
+        $this->logService->log($transaction, 'created', [], $transfer_id);
     }
 
-    public function createTransaction(array $data): Transaction
+    public function createTransaction(array $data, $transfer_id = null): Transaction
     {
         $transaction = Transaction::create($data);
-        $this->handleAfterCreate($transaction);
-        $this->logService->log($transaction, 'created');
+        $this->handleAfterCreate($transaction, $transfer_id);
 
         return $transaction;
     }

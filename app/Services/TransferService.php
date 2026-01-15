@@ -39,7 +39,7 @@ class TransferService
                 'amount' => $preparedData['amount'],
                 'is_locked' => true,
                 'transaction_date' => $preparedData['transfer_date'],
-                'description' => $preparedData['note'] ?? 'Transferencia enviada a ' . $transfer->toAccount->name,
+                'description' => 'Transferencia enviada a ' . $transfer->toAccount->name . 'Descripción: ' . ($preparedData['note'] ?? 'Transferencia enviada a ' . $transfer->toAccount->name),
             ];
             $transactionService->createTransaction($expenseData);
 
@@ -51,7 +51,7 @@ class TransferService
                 'amount' => $preparedData['amount_converted'],
                 'transaction_date' => $preparedData['transfer_date'],
                 'is_locked' => true,
-                'description' => $preparedData['note'] ?? 'Transferencia recibida de ' . $transfer->fromAccount->name,
+                'description' => 'Transferencia recibida de ' . $transfer->fromAccount->name . 'Descripción: ' . ($preparedData['note'] ?? 'Transferencia recibida de ' . $transfer->fromAccount->name),
             ];
             $transactionService->createTransaction($incomeData);
 

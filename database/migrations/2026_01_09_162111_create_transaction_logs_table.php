@@ -15,6 +15,7 @@ return new class extends Migration
             $table->ulid('id')->primary();
 
             $table->unsignedBigInteger('transaction_id')->index();
+            $table->unsignedBigInteger('transfer_id')->nullable()->index();
 
             $table->string('event'); // created, updated, deleted, locked, unlocked
             $table->timestamp('event_at');

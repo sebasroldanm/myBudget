@@ -17,7 +17,7 @@ class TransactionLogService
         //
     }
 
-    public function log(Transaction $transaction, string $event, array $meta = []): void
+    public function log(Transaction $transaction, string $event, array $meta = [], $transfer_id = null): void
     {
         $transaction->loadMissing(['account', 'product', 'category']);
 
@@ -28,6 +28,7 @@ class TransactionLogService
 
         TransactionLog::create([
             'transaction_id'   => $transaction->id,
+            'transfer_id'      => $transfer->id ?? null,
             'event'            => $event,
             'event_at'         => now(),
 
