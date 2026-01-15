@@ -22,6 +22,11 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
+            $table->foreignId('product_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
             $table->foreignId('category_id')
                 ->nullable()
                 ->constrained()
@@ -37,8 +42,6 @@ return new class extends Migration
             $table->decimal('amount', 15, 2);
 
             $table->boolean('is_locked')->default(false);
-
-            $table->boolean('is_recurring')->default(false);
 
             $table->date('transaction_date');
 

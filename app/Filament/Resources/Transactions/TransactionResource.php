@@ -6,6 +6,7 @@ use App\Filament\Resources\Transactions\Pages\CreateTransaction;
 use App\Filament\Resources\Transactions\Pages\EditTransaction;
 use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Pages\ViewTransaction;
+use App\Filament\Resources\Transactions\RelationManagers\LogsRelationManager;
 use App\Filament\Resources\Transactions\Schemas\TransactionForm;
 use App\Filament\Resources\Transactions\Schemas\TransactionInfolist;
 use App\Filament\Resources\Transactions\Tables\TransactionsTable;
@@ -16,8 +17,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class TransactionResource extends Resource
 {
@@ -30,6 +29,8 @@ class TransactionResource extends Resource
     protected static ?string $navigationLabel = 'Transacciones';
 
     protected static ?string $pluralModelLabel = 'Transacciones';
+    
+    protected static ?string $modelLabel = 'Transacción';
 
     public static function form(Schema $schema): Schema
     {
@@ -46,16 +47,10 @@ class TransactionResource extends Resource
         return TransactionsTable::configure($table);
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->where('user_id', Auth::user()->id);
-    }
-
     public static function getRelations(): array
     {
         return [
-            //
+            LogsRelationManager::class,
         ];
     }
 

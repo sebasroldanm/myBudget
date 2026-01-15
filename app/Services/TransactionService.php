@@ -10,10 +10,9 @@ class TransactionService
     /**
      * Create a new class instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        protected TransactionLogService $logService
+    ) {}
 
     public function handleAfterCreate(Transaction $transaction): void
     {
@@ -26,12 +25,14 @@ class TransactionService
                 $account->decrement('current_balance', $transaction->amount);
             }
         });
+        $this->logService->log($transaction, 'created');
     }
-    
+
     public function createTransaction(array $data): Transaction
     {
         $transaction = Transaction::create($data);
         $this->handleAfterCreate($transaction);
+        $this->logService->log($transaction, 'created');
 
         return $transaction;
     }
@@ -42,6 +43,7 @@ class TransactionService
             $this->applyBalance($transaction, reverse: true);
             $transaction->update($newData);
             $this->applyBalance($transaction, reverse: false);
+            $this->logService->log($transaction, 'updated');
 
             return $transaction;
         });
@@ -52,6 +54,7 @@ class TransactionService
         DB::transaction(function () use ($transaction) {
             $this->applyBalance($transaction, true);
             $transaction->delete();
+            $this->logService->log($transaction, 'deleted');
         });
     }
 
@@ -60,6 +63,7 @@ class TransactionService
         DB::transaction(function () use ($transaction) {
             $this->applyBalance($transaction, false);
             $transaction->restore();
+            $this->logService->log($transaction, 'restored');
         });
     }
 
