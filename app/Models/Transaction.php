@@ -19,7 +19,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'account_id',
-        'product_id',
+        'budget_item_id',
         'category_id',
         'transfer_id',
         'type',
@@ -79,6 +79,11 @@ class Transaction extends Model
     public function transfer(): BelongsTo
     {
         return $this->belongsTo(Transfer::class);
+    }
+
+    public function budgetItem(): BelongsTo
+    {
+        return $this->belongsTo(BudgetItem::class);
     }
 
     public function lastedLog(): hasOne

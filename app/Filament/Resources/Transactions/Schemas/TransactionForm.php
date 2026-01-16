@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Transactions\Schemas;
 
 use App\Models\Account;
-use App\Models\Product;
+use App\Models\BudgetItem;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -53,20 +53,30 @@ class TransactionForm
                                     })
                                     ->columnSpan(4),
 
-                                Select::make('product_id')
-                                    ->label('Producto')
-                                    ->relationship('product', 'name')
-                                    ->getOptionLabelFromRecordUsing(fn($record) => $record->name . ' - ' . $record->formatted_price)
+                                Select::make('budget_item_id')
+                                    ->label('Ítem de presupuesto')
+                                    ->relationship(
+                                        name: 'budgetItem',
+                                        titleAttribute: 'name',
+                                        modifyQueryUsing: fn(Builder $query, Get $get) => $query
+                                            ->whereHas('budget', function (Builder $query) {
+                                                $query->where('status', 'active');
+                                            })
+                                    )
+                                    ->getOptionLabelFromRecordUsing(fn($record) => $record->product->name . ' - ' . $record->product->formatted_price)
                                     ->searchable()
                                     ->preload()
                                     ->live()
                                     ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                         if ($state) {
-                                            $product = Product::find($state);
-                                            if ($product && $product->default_account_id) {
-                                                $set('account_id', $product->default_account_id);
-                                                $set('category_id', $product->category_id);
-                                                $set('amount', $product->price);
+                                            $budgetItem = BudgetItem::find($state);
+                                            if ($budgetItem) {
+                                                if ($budgetItem->account_id) {
+                                                    $set('account_id', $budgetItem->account_id);
+                                                    $set('category_id', $budgetItem->product->category_id);
+                                                    $set('amount', $budgetItem->product->expected_price);
+                                                    $set('transaction_date', $budgetItem->payment_date);
+                                                }
                                             }
                                         }
                                     })
@@ -122,7 +132,8 @@ class TransactionForm
                         DatePicker::make('transaction_date')
                             ->label('Fecha')
                             ->default(now())
-                            ->required(),
+                            ->required()
+                            ->live(),
 
                         Textarea::make('description')
                             ->label('Descripción')

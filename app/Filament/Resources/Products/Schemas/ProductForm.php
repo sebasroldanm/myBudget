@@ -64,7 +64,11 @@ class ProductForm
 
                         Select::make('category_id')
                             ->label('Categoría')
-                            ->relationship('category', 'name')
+                            ->relationship(
+                                name: 'category', 
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn ($query) => $query->active()->expenses(),
+                            )
                             ->getOptionLabelFromRecordUsing(fn($record) => $record->full_name)
                             ->searchable()
                             ->preload()

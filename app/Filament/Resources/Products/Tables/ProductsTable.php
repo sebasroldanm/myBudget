@@ -42,7 +42,7 @@ class ProductsTable
                 TextColumn::make('price')
                     ->label('Precio')
                     ->getStateUsing(function ($record) {
-                        return $record->formatted_expected_price;
+                        return $record->formatted_price;
                     })
                     ->searchable()
                     ->sortable(),

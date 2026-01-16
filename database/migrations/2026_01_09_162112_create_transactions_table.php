@@ -22,7 +22,7 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->foreignId('product_id')
+            $table->foreignId('budget_item_id')
                 ->nullable()
                 ->constrained()
                 ->nullOnDelete();

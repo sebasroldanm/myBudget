@@ -80,6 +80,11 @@ class Product extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function budgetItems()
+    {
+        return $this->hasMany(BudgetItem::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Scopes
