@@ -28,6 +28,7 @@ class BudgetResource extends Resource
     protected static ?string $navigationLabel = 'Presupuestos';
 
     protected static ?string $pluralModelLabel = 'Presupuestos';
+    protected static ?string $modelLabel = 'Presupuesto';
 
     public static function form(Schema $schema): Schema
     {
