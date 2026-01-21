@@ -24,8 +24,8 @@ class AccountResource extends Resource
     protected static string | UnitEnum | null $navigationGroup = 'Finanzas';
 
     protected static ?string $navigationLabel = 'Cuentas';
-
     protected static ?string $pluralModelLabel = 'Cuentas';
+    protected static ?string $modelLabel = 'Cuenta';
 
     public static function getNavigationBadge(): ?string
     {

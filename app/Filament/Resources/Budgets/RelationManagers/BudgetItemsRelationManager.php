@@ -90,9 +90,8 @@ class BudgetItemsRelationManager extends RelationManager
                     ->label('Fecha de Pago')
                     ->date()
                     ->sortable(),
-                IconColumn::make('is_paid')
-                    ->label('Pagado')
-                    ->boolean(),
+                TextColumn::make('account.name')
+                    ->label('Cuenta'),
             ])
             ->filters([
                 //

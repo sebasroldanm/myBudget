@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Budgets\Pages;
 
 use App\Filament\Resources\Budgets\BudgetResource;
+use App\Filament\Resources\Budgets\Widgets\AccountBalanceWidget;
 use App\Models\Budget;
 use App\Services\BudgetService;
 use Filament\Actions\Action;
@@ -34,6 +35,13 @@ class EditBudget extends EditRecord
                         ->send();
                 }),
             DeleteAction::make(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            AccountBalanceWidget::class,
         ];
     }
 }

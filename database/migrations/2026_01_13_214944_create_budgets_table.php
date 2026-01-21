@@ -17,12 +17,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->string('name', 100);
-            $table->string('currency', 3)->default('COP');
-
             $table->date('period_start');
             $table->date('period_end');
-
             $table->string('status')->default('draft');
+
+            $table->string('currency', 3)->default('COP');
+            $table->decimal('budget_amount', 10, 2)->default(0);
 
             $table->timestamps();
 

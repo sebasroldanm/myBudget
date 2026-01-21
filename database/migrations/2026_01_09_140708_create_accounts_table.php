@@ -25,6 +25,13 @@ return new class extends Migration
             $table->decimal('initial_balance', 15, 2)->default(0);
             $table->decimal('current_balance', 15, 2)->default(0);
 
+            // credit card
+            $table->decimal('credit_limit', 15, 2)->default(0);
+            $table->decimal('credit_available', 15, 2)->default(0);
+            $table->decimal('credit_interest_rate', 5, 2)->default(0);
+            $table->date('credit_due_date')->nullable();
+            $table->date('credit_payment_date')->nullable();
+
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();

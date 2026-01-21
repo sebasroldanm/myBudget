@@ -14,16 +14,26 @@ class Account extends Model
 
     protected $fillable = [
         'name',
-        'type',
+        'type', // cash, bank, wallet, credit, investment
         'currency',
         'initial_balance',
         'current_balance',
+        'credit_limit',
+        'credit_available',
+        'credit_interest_rate',
+        'credit_due_date',
+        'credit_payment_date',
         'is_active',
     ];
 
     protected $casts = [
         'initial_balance' => 'decimal:2',
         'current_balance' => 'decimal:2',
+        'credit_limit' => 'decimal:2',
+        'credit_available' => 'decimal:2',
+        'credit_interest_rate' => 'decimal:2',
+        'credit_due_date' => 'date',
+        'credit_payment_date' => 'date',
         'is_active' => 'boolean',
     ];
 
@@ -82,5 +92,15 @@ class Account extends Model
     public function getFormattedBalanceAttribute()
     {
         return $this->formatCurrency($this->current_balance, $this->currency);
+    }
+
+    public function getAvailableBalanceAttribute()
+    {
+        return $this->current_balance - $this->transactions()->sum('amount');
+    }
+
+    public function getFormattedAvailableBalanceAttribute()
+    {
+        return $this->formatCurrency($this->available_balance, $this->currency);
     }
 }

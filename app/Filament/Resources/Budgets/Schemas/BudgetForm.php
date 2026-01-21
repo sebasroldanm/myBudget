@@ -35,6 +35,13 @@ class BudgetForm
                             ])
                             ->required(),
 
+                        TextInput::make('budget_amount')
+                            ->label('Monto del presupuesto')
+                            ->prefix('0.000.000')// Total disponible sumando todas las cuentas
+                            ->required()
+                            ->numeric()
+                            ->minValue(0),
+
                         Select::make('status')
                             ->label('Estado')
                             ->options([
