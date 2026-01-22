@@ -20,6 +20,16 @@ class AccountsTable
                     ->searchable(),
 
                 TextColumn::make('type')
+                    ->badge()
+                    ->color('info')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'cash' => 'Efectivo',
+                        'bank' => 'Banco',
+                        'wallet' => 'Billetera',
+                        'credit_card' => 'Tarjeta de Crédito',
+                        'investment' => 'Inversión',
+                        default => $state,
+                    })
                     ->label('Tipo'),
 
                 TextColumn::make('current_balance')
