@@ -16,6 +16,7 @@ class Product extends Model
         'vendor',
         'name',
         'is_recurring',
+        'is_temporary',
         'payment_date',
         'periodicity',
         'start_date',
@@ -31,6 +32,7 @@ class Product extends Model
 
     protected $casts = [
         'is_recurring' => 'boolean',
+        'is_temporary' => 'boolean',
         'is_active' => 'boolean',
         'payment_date' => 'date',
         'start_date' => 'date',
@@ -99,6 +101,11 @@ class Product extends Model
     public function scopeRecurring($query)
     {
         return $query->where('is_recurring', true);
+    }
+
+    public function scopeTemporary($query)
+    {
+        return $query->where('is_temporary', true);
     }
 
     public function scopeInDateRange($query, $date)

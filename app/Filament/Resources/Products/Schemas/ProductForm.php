@@ -109,14 +109,27 @@ class ProductForm
                                     ->required()
                                     ->columnSpan(4),
                             ]),
-                        Toggle::make('is_active')
-                            ->label('Activo')
-                            ->inline(false)
-                            ->onColor('success')
-                            ->offColor('danger')
-                            ->onIcon(Heroicon::CheckCircle)
-                            ->offIcon(Heroicon::XCircle)
-                            ->default(true),
+
+                        Grid::make(12)
+                            ->schema([
+                                Toggle::make('is_active')
+                                    ->label('Activo')
+                                    ->onColor('success')
+                                    ->offColor('danger')
+                                    ->onIcon(Heroicon::CheckCircle)
+                                    ->offIcon(Heroicon::XCircle)
+                                    ->default(true)
+                                    ->columnSpan(6),
+
+                                Toggle::make('is_temporary')
+                                    ->label('Es temporal')
+                                    ->onColor('success')
+                                    ->offColor('danger')
+                                    ->onIcon(Heroicon::CheckCircle)
+                                    ->offIcon(Heroicon::XCircle)
+                                    ->disabled(fn(Get $get) => $get('is_recurring'))
+                                    ->columnSpan(6),
+                            ]),
                     ]),
 
                 Section::make('Recurrencia')
@@ -127,6 +140,11 @@ class ProductForm
                             ->label('Es recurrente')
                             ->onIcon(Heroicon::ArrowPath)
                             ->onColor('success')
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if ($state) {
+                                    $set('is_temporary', false);
+                                }
+                            })
                             ->inline(false)
                             ->live(),
 

@@ -32,6 +32,7 @@ return new class extends Migration
             $table->decimal('price', 15, 2);
 
             $table->boolean('is_recurring')->default(false);
+            $table->boolean('is_temporary')->default(false);
             $table->decimal('expected_price', 15, 2)->nullable();
             $table->date('payment_date')->nullable();
             $table->string('periodicity')->nullable();
