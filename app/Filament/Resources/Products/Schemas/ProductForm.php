@@ -6,7 +6,6 @@ use App\Models\Account;
 use App\Services\ExchangeService;
 use App\Traits\NumberFormatterTrait;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -27,7 +26,12 @@ class ProductForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
-            ->components([
+            ->components(static::getFormSchema());
+    }
+
+    public static function getFormSchema(): array
+    {
+        return [
                 Section::make('General')
                     ->description('Información general del producto')
                     ->icon(Heroicon::DocumentText)
@@ -216,6 +220,6 @@ class ProductForm
                             ->rows(4)
                             ->columnSpanFull(),
                     ]),
-            ]);
+            ];
     }
 }

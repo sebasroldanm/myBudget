@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Budgets\RelationManagers;
 
+use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -15,8 +16,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -37,6 +36,8 @@ class BudgetItemsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->live()
+                    ->createOptionForm(ProductForm::getFormSchema())
+                    ->createOptionModalHeading('Crear Producto')
                     ->afterStateUpdated(function ($state, Set $set) {
                          if ($state) {
                              $product = Product::find($state);

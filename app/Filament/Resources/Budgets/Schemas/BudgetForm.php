@@ -37,7 +37,7 @@ class BudgetForm
 
                         TextInput::make('budget_amount')
                             ->label('Monto del presupuesto')
-                            ->prefix('0.000.000')// Total disponible sumando todas las cuentas
+                            ->prefix('$')
                             ->required()
                             ->numeric()
                             ->minValue(0),
