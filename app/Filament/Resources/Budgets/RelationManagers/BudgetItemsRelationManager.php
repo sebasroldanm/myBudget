@@ -53,7 +53,8 @@ class BudgetItemsRelationManager extends RelationManager
                     ->required()
                     ->prefix('$'),
                 DatePicker::make('payment_date')
-                    ->label('Fecha Esperada de Pago'),
+                    ->label('Fecha Esperada de Pago')
+                    ->native(false),
                 Select::make('account_id')
                     ->label('Cuenta')
                     ->relationship('account', 'name')

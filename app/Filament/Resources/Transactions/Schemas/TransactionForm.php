@@ -133,6 +133,7 @@ class TransactionForm
                             ->label('Fecha')
                             ->default(now())
                             ->required()
+                            ->native(false)
                             ->live(),
 
                         Textarea::make('description')

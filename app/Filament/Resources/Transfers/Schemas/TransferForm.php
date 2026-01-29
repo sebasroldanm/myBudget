@@ -39,6 +39,7 @@ class TransferForm
 
                 DatePicker::make('transfer_date')
                     ->required()
+                    ->native(false)
                     ->default(now()),
 
                 Textarea::make('note')

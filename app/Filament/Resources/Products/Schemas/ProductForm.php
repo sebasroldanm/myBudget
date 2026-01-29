@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Models\Account;
 use App\Services\ExchangeService;
 use App\Traits\NumberFormatterTrait;
@@ -76,6 +77,8 @@ class ProductForm
                             ->getOptionLabelFromRecordUsing(fn($record) => $record->full_name)
                             ->searchable()
                             ->preload()
+                            ->createOptionForm(CategoryForm::getFormSchema())
+                            ->createOptionModalHeading('Crear Nueva Categoría')
                             ->required(),
 
                         Grid::make(12)
@@ -191,6 +194,7 @@ class ProductForm
                             ->schema([
                                 DatePicker::make('payment_date')
                                     ->label('Fecha de pago')
+                                    ->native(false)
                                     ->visible(fn($get) => $get('is_recurring')),
 
                                 Select::make('periodicity')
@@ -205,10 +209,12 @@ class ProductForm
 
                                 DatePicker::make('start_date')
                                     ->label('Fecha de inicio')
+                                    ->native(false)
                                     ->visible(fn($get) => $get('is_recurring')),
 
                                 DatePicker::make('end_date')
                                     ->label('Fecha de fin')
+                                    ->native(false)
                                     ->visible(fn($get) => $get('is_recurring')),
 
                             ]),

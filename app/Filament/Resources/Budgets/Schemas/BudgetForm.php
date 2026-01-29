@@ -64,11 +64,13 @@ class BudgetForm
                         DatePicker::make('period_start')
                             ->label('Fecha Inicio')
                             ->default(now()->startOfMonth())
+                            ->native(false)
                             ->required(),
 
                         DatePicker::make('period_end')
                             ->label('Fecha Fin')
                             ->default(now()->endOfMonth())
+                            ->native(false)
                             ->required()
                             ->after('period_start'),
 
