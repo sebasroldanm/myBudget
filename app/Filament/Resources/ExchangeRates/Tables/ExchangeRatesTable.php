@@ -36,7 +36,7 @@ class ExchangeRatesTable
                 //
             ])
             ->recordActions([
-                // EditAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

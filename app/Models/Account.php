@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ExchangeService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 class Account extends Model
 {
     use NumberFormatterTrait;
+
+    private $exchangeService;
 
     protected $fillable = [
         'name',
@@ -51,7 +54,15 @@ class Account extends Model
             }
         });
     }
-    
+
+    private function getExchangeService(): ExchangeService
+    {
+        if (!$this->exchangeService) {
+            $this->exchangeService = app(ExchangeService::class);
+        }
+        return $this->exchangeService;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
@@ -66,6 +77,11 @@ class Account extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class)->withTrashed();
+    }
+
+    public function budgetItems(): HasMany
+    {
+        return $this->hasMany(BudgetItem::class);
     }
 
     /*
@@ -84,23 +100,88 @@ class Account extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function getBalanceAttribute()
-    {
-        return $this->current_balance;
-    }
-
+    /**
+     * Balance neto formateado
+     */
     public function getFormattedBalanceAttribute()
     {
         return $this->formatCurrency($this->current_balance, $this->currency);
     }
 
-    public function getAvailableBalanceAttribute()
+    /**
+     * Balance neto en otra moneda
+     */
+    public function getBalanceExchange($currency = null)
     {
-        return $this->current_balance - $this->transactions()->sum('amount');
+        $exchangeService = $this->getExchangeService();
+
+        $currency = $currency ?? $this->currency;
+        if ($this->currency === $currency) {
+            return $this->current_balance;
+        }
+
+        return $exchangeService->convert($this->currency, $currency, $this->current_balance);
     }
 
-    public function getFormattedAvailableBalanceAttribute()
+    /**
+     * Balance neto en otra moneda formateado
+     */
+    public function getFormattedBalanceExchange($currency = null)
     {
-        return $this->formatCurrency($this->available_balance, $this->currency);
+        $currency = $currency ?? $this->currency;
+        return $this->formatCurrency($this->getBalanceExchange($currency), $currency);
+    }
+
+    /**
+     * Balance neto disponible para presupuestos
+     */
+    public function getBalanceBudgetsAttribute()
+    {
+        $exchangeService = $this->getExchangeService();
+
+        $totalExpectedInAccountCurrency = $this->budgetItems->sum(function ($item) use ($exchangeService) {
+            $amount = $item->expected_amount;
+            $budgetCurrency = $item->budget->currency;
+            $accountCurrency = $this->currency;
+
+            if ($budgetCurrency === $accountCurrency) {
+                return $amount;
+            }
+
+            return $exchangeService->convert($budgetCurrency, $accountCurrency, $amount);
+        });
+        return $this->current_balance - $totalExpectedInAccountCurrency;
+    }
+
+    /**
+     * Balance neto disponible para presupuestos formateado
+     */
+    public function getFormattedBalanceBudgetsAttribute()
+    {
+        return $this->formatCurrency($this->balance_budgets, $this->currency);
+    }
+
+    /**
+     * Balance neto disponible para presupuestos en otra moneda
+     */
+    public function getBalanceBudgetsExchange($currency = null)
+    {
+        $exchangeService = $this->getExchangeService();
+
+        $currency = $currency ?? $this->currency;
+        if ($this->currency === $currency) {
+            return $this->balance_budgets;
+        }
+
+        return $exchangeService->convert($this->currency, $currency, $this->balance_budgets);
+    }
+
+    /**
+     * Balance neto disponible para presupuestos en otra moneda formateado
+     */
+    public function getFormattedBalanceBudgetsExchange($currency = null)
+    {
+        $currency = $currency ?? $this->currency;
+        return $this->formatCurrency($this->getBalanceBudgetsExchange($currency), $currency);
     }
 }

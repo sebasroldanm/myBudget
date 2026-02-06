@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\Budgets\RelationManagers;
 
 use App\Filament\Resources\Products\Schemas\ProductForm;
+use App\Models\Account;
+use App\Models\Budget;
+use App\Models\BudgetItem;
 use App\Models\Product;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -15,6 +18,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -39,13 +43,13 @@ class BudgetItemsRelationManager extends RelationManager
                     ->createOptionForm(ProductForm::getFormSchema())
                     ->createOptionModalHeading('Crear Producto')
                     ->afterStateUpdated(function ($state, Set $set) {
-                         if ($state) {
-                             $product = Product::find($state);
-                             if ($product) {
-                                 $set('expected_amount', $product->expected_price ?? $product->price);
-                                 $set('account_id', $product->default_account_id);
-                             }
-                         }
+                        if ($state) {
+                            $product = Product::find($state);
+                            if ($product) {
+                                $set('expected_amount', $product->expected_price ?? $product->price);
+                                $set('account_id', $product->default_account_id);
+                            }
+                        }
                     }),
                 TextInput::make('expected_amount')
                     ->label('Valor Esperado')
@@ -58,6 +62,22 @@ class BudgetItemsRelationManager extends RelationManager
                 Select::make('account_id')
                     ->label('Cuenta')
                     ->relationship('account', 'name')
+                    ->getOptionLabelFromRecordUsing(fn($record,  $livewire) => $record->name . ' > ' . $record->getFormattedAvailableBalanceBudgetsExchange($livewire->ownerRecord->currency))
+                    ->disableOptionWhen(function (string $value, Get $get, $livewire) {
+                        $account = Account::find($value);
+                        if (! $account) return false;
+
+                        $budget = $livewire->ownerRecord;
+
+                        $amount = $get('expected_amount');
+                        $currency = $budget->currency;
+
+                        if ($amount <= 0) return false;
+
+                        $expected = $account->getAvailableBalanceBudgetsExchange($currency);
+
+                        return $expected < $amount;
+                    })
                     ->searchable()
                     ->preload(),
                 Textarea::make('notes')

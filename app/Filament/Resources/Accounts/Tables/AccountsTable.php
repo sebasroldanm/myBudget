@@ -31,10 +31,27 @@ class AccountsTable
                         default => $state,
                     })
                     ->label('Tipo'),
-
+                
                 TextColumn::make('current_balance')
-                    ->label('Saldo actual')
+                    ->label('Saldo neto')
                     ->prefix(fn ($record) => $record ? "{$record->currency} $" : '$ ')
+                    ->description(function ($record) {
+                        if ($record->currency !== 'COP') {
+                            return 'COP ' . $record->getFormattedBalanceExchange('COP');
+                        }
+                        return '';
+                    })
+                    ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.'),
+
+                TextColumn::make('balance_budgets')
+                    ->label('Saldo disponible')
+                    ->prefix(fn ($record) => $record ? "{$record->currency} $" : '$ ')
+                    ->description(function ($record) {
+                        if ($record->currency !== 'COP') {
+                            return 'COP ' . $record->getFormattedBalanceBudgetsExchange('COP');
+                        }
+                        return '';
+                    })
                     ->numeric(decimalPlaces: 2, decimalSeparator: ',', thousandsSeparator: '.'),
 
                 IconColumn::make('is_active')
