@@ -40,27 +40,26 @@ class AccountBalanceWidget extends BaseWidget
 
             $sumForAccount = $items->sum('expected_amount');
             $totalBudgeted += $sumForAccount;
+            $accountBalance = $account->getBalanceBudgetsExchange($this->record->currency);
 
-            if ($sumForAccount < $account->balance) {
+            if ($sumForAccount < $accountBalance) {
                 $color = 'success';
             } else {
                 $color = 'danger';
             }
 
-            $balanceAfterBudget = $account->balance_budgets;
-
             $stats[] = Stat::make(
                 "Consumo: {$account->name}",
                 '$ ' . number_format($sumForAccount, 2, ',', '.')
             )
-                ->description("Saldo después del presupuesto: " . $this->formatCurrency($balanceAfterBudget, $account->currency))
+                ->description("Saldo después del presupuesto: " . $this->formatCurrency($accountBalance, $this->record->currency))
                 ->color($color);
         }
 
         $stats[] = Stat::make('Total Presupuestado', number_format($totalBudgeted, 2))
             ->description('Suma de todos los ítems por cuenta')
             ->color('primary');
-            // ->chart([2, 4, 6, 8, 10]);
+        // ->chart([2, 4, 6, 8, 10]);
 
         return $stats;
     }

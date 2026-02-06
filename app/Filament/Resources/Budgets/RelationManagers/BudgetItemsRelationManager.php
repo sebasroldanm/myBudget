@@ -62,7 +62,7 @@ class BudgetItemsRelationManager extends RelationManager
                 Select::make('account_id')
                     ->label('Cuenta')
                     ->relationship('account', 'name')
-                    ->getOptionLabelFromRecordUsing(fn($record,  $livewire) => $record->name . ' > ' . $record->getFormattedAvailableBalanceBudgetsExchange($livewire->ownerRecord->currency))
+                    ->getOptionLabelFromRecordUsing(fn($record,  $livewire) => $record->name . ' > ' . $record->getFormattedBalanceBudgetsExchange($livewire->ownerRecord->currency))
                     ->disableOptionWhen(function (string $value, Get $get, $livewire) {
                         $account = Account::find($value);
                         if (! $account) return false;
@@ -74,7 +74,7 @@ class BudgetItemsRelationManager extends RelationManager
 
                         if ($amount <= 0) return false;
 
-                        $expected = $account->getAvailableBalanceBudgetsExchange($currency);
+                        $expected = $account->getBalanceBudgetsExchange($currency);
 
                         return $expected < $amount;
                     })
