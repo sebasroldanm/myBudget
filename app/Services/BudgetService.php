@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Budget;
 use App\Models\BudgetItem;
 use App\Models\Product;
+use App\Models\Transaction;
 use Carbon\Carbon;
 
 class BudgetService
@@ -122,5 +123,17 @@ class BudgetService
             'yearly' => $date->addYear(),
             default => $date->addMonth(), // Default 'monthly'
         };
+    }
+
+    public function updateBudgetItem(Transaction $transaction): void
+    {
+        $budgetItem = BudgetItem::find($transaction->budget_item_id);
+            if ($budgetItem) {
+                $budgetItem->update([
+                    'actual_amount' => $transaction->amount,
+                    'pay_date' => Carbon::parse($transaction->transaction_date)->format('Y-m-d'),
+                    'is_paid' => true,
+                ]);
+            }
     }
 }

@@ -59,6 +59,7 @@ class TransactionForm
                                         name: 'budgetItem',
                                         titleAttribute: 'name',
                                         modifyQueryUsing: fn(Builder $query, Get $get) => $query
+                                            ->where('is_paid', false)
                                             ->whereHas('budget', function (Builder $query) {
                                                 $query->where('status', 'active');
                                             })

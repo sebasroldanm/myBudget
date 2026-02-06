@@ -3,9 +3,12 @@
 namespace App\Filament\Resources\Transactions\Pages;
 
 use App\Filament\Resources\Transactions\TransactionResource;
+use App\Models\BudgetItem;
+use App\Services\BudgetService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
 use App\Services\TransactionService;
+use Carbon\Carbon;
 
 class CreateTransaction extends CreateRecord
 {
@@ -20,5 +23,9 @@ class CreateTransaction extends CreateRecord
     protected function afterCreate(): void
     {
         app(TransactionService::class)->handleAfterCreate($this->record);
+
+        if ($this->record->budget_item_id) {
+            app(BudgetService::class)->updateBudgetItem($this->record);
+        }
     }
 }
