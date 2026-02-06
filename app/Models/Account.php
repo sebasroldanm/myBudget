@@ -139,7 +139,7 @@ class Account extends Model
     {
         $exchangeService = $this->getExchangeService();
 
-        $totalExpectedInAccountCurrency = $this->budgetItems->sum(function ($item) use ($exchangeService) {
+        $totalExpectedInAccountCurrency = $this->budgetItems->where('is_paid', false)->sum(function ($item) use ($exchangeService) {
             $amount = $item->expected_amount;
             $budgetCurrency = $item->budget->currency;
             $accountCurrency = $this->currency;

@@ -33,12 +33,15 @@ class AccountBalanceWidget extends BaseWidget
         $stats = [];
         $totalBudgeted = 0;
 
+        $sumPayed = 0;
+
         foreach ($groupedByAccount as $accountId => $items) {
             $account = $items->first()->account;
 
             if (!$account) continue;
 
-            $sumForAccount = $items->sum('expected_amount');
+            $sumForAccount = $items->where('is_paid', false)->sum('expected_amount');
+            $sumPayed += $items->where('is_paid', true)->sum('actual_amount');
             $totalBudgeted += $sumForAccount;
             $accountBalance = $account->getBalanceBudgetsExchange($this->record->currency);
 
@@ -60,6 +63,10 @@ class AccountBalanceWidget extends BaseWidget
             ->description('Suma de todos los ítems por cuenta')
             ->color('primary');
         // ->chart([2, 4, 6, 8, 10]);
+
+        $stats[] = Stat::make('Pagos realizados', number_format($sumPayed, 2))
+            ->description('Suma de todos los pagos realizados')
+            ->color('primary');
 
         return $stats;
     }
